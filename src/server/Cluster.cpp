@@ -1,5 +1,4 @@
 #include "Cluster.hpp"
-#include "dev/devHelpers.hpp"
 #include "../config/Config.hpp"
 #include "../parser/Parser.hpp"
 #include "../request/Request.hpp"
@@ -167,7 +166,6 @@ void	Cluster::processReceivedData(size_t& i, const char* buffer, int bytes) {
 		client_state.request = client_state.clean_buffer.substr(0, client_state.request_size);
 		const Server& conf = findRelevantConfig(_fds[i].fd, client_state.clean_buffer);
 		Parser parse;
-		printServerConfig(conf);
 		Request req = parse.parseRequest(client_state.request, client_state.kick_me, false);
 		prepareResponse(client_state, conf, req, i);
 		setTimer(client_state);
