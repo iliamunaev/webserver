@@ -30,36 +30,15 @@ Webserver is a full-featured HTTP server implementation with advanced routing ca
 - **CGI Environment Setup**: Complete CGI environment variable configuration
 - **Nested Directory Support**: Deep directory structure navigation with autoindex
 
-## Requirements
-
-### System Requirements
-
-- **Operating System**: Linux (tested on WSL2, Ubuntu)
-- **C++ Version**: C++20 or later
-
-### Dependencies
-
-- **CMake**: Version 3.16 or later (for build system)
-- **GCC/Clang**: C++20 compatible compiler
-- **Standard Library**: C++20 standard library with filesystem support
-- **System Libraries**: Standard POSIX libraries for file and network operations
-
 ## Installation Instructions
 
-### 1. Basic Server Startup
+### 1. Clone and Build
 
-Clone the repository and navigate to the project directory:
+Clone the repository and build the webserver:
 
 ```bash
 git clone <repository-url>
-cd webserver
-```
-
-### 2. Compile the Project
-
-Build the webserver using CMake:
-
-```bash
+cd webserv2
 make run
 ```
 
