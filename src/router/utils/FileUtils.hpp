@@ -1,11 +1,6 @@
-/**
- * @file FileUtils.hpp
- * @brief File utility functions
- */
-
 #pragma once
 
-#include <string> // for std::string
+#include <string>
 
 namespace router {
 namespace utils {

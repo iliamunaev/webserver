@@ -1,8 +1,8 @@
 #pragma once
 
-#include <string> // for std::string
-#include <vector> // for std::vector
-#include <map> // for std::map
+#include <string>
+#include <vector>
+#include <map>
 
 struct CgiResult {
   std::map<std::string, std::string> headers;

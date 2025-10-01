@@ -2,6 +2,7 @@
 
 namespace router::handlers {
 
+/** Parse multipart data */
 MultipartData MultipartParser::parseMultipartData(const std::string& body, const std::string& boundary) {
   MultipartData result;
 
@@ -33,6 +34,7 @@ MultipartData MultipartParser::parseMultipartData(const std::string& body, const
   return result;
 }
 
+/** Extract filename */
 std::string MultipartParser::extractFilename(const std::string& filePart) {
   const size_t filenamePos = filePart.find("filename=\"");
   if (filenamePos == std::string::npos) {
@@ -48,6 +50,7 @@ std::string MultipartParser::extractFilename(const std::string& filePart) {
   return filePart.substr(filenamePos + 10, filenameEnd - filenamePos - 10);
 }
 
+/** Extract file content */
 std::string MultipartParser::extractFileContent(const std::string& filePart) {
   const size_t contentStart = filePart.find("\r\n\r\n");
   if (contentStart == std::string::npos) {
@@ -57,6 +60,7 @@ std::string MultipartParser::extractFileContent(const std::string& filePart) {
   return filePart.substr(contentStart + 4);
 }
 
+/** Clean file content */
 std::string MultipartParser::cleanFileContent(const std::string& content) {
   std::string cleaned = content;
 

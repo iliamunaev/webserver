@@ -15,6 +15,7 @@
 namespace router {
 namespace utils {
 
+/** Validate location server */
 bool isValidLocationServer(Response& res, const Location* location, const Server* server, const Request& req) {
   if (!location) {
     router::utils::HttpResponseBuilder::setErrorResponse(res, http::NOT_FOUND_404, req, *server);
@@ -29,21 +30,7 @@ bool isValidLocationServer(Response& res, const Location* location, const Server
   return true;
 }
 
-// bool isValidPath(const std::string_view& path, Response& res, const Request& req) {
-//   if (path.empty()) {
-//     router::utils::HttpResponseBuilder::setErrorResponse(res, http::NOT_FOUND_404, req);
-//     return false;
-//   }
-//
-//   // Check for path traversal attempts
-//   if (path.find("..") != std::string::npos) {
-//     router::utils::HttpResponseBuilder::setErrorResponse(res, http::FORBIDDEN_403, req);
-//     return false;
-//   }
-//
-//   return true;
-// }
-
+/** Validate path */
 bool isValidPath(const std::string_view& path, Response& res, const Request& req, const Server& server) {
   if (path.empty()) {
     router::utils::HttpResponseBuilder::setErrorResponse(res, http::NOT_FOUND_404, req, server);
@@ -59,16 +46,8 @@ bool isValidPath(const std::string_view& path, Response& res, const Request& req
   return true;
 }
 
-// bool isFileExistsAndExecutable(const std::string& filePath, Response& res, const Request& req) {
-//   // Check if file exists and is executable
-//   if (!std::filesystem::exists(filePath)) {
-//     router::utils::HttpResponseBuilder::setErrorResponse(res, http::NOT_FOUND_404, req);
-//     return false;
-//   }
 
-//   return true;
-// }
-
+/** Check file exists and executable */
 bool isFileExistsAndExecutable(const std::string& filePath, Response& res, const Request& req, const Server& server) {
   // Check if file exists and is executable
   if (!std::filesystem::exists(filePath)) {

@@ -1,6 +1,6 @@
 /**
  * @file Handlers.cpp
- * @brief Implementation of HTTP request handlers
+ * @brief HTTP request handlers implementation
  */
 
 #include "Handlers.hpp"
@@ -15,7 +15,7 @@
 #include "../HttpConstants.hpp"
 #include "../../server/Server.hpp"
 #include <sstream>
-#include <filesystem> // for std::filesystem::directory_iterator, std::filesystem::path, std::filesystem::exists, std::filesystem::is_directory, std::filesystem::is_regular_file, std::filesystem::create_directories, std::filesystem::remove, std::filesystem::file_size, std::filesystem::last_write_time
+#include <filesystem>
 
 using namespace http;
 

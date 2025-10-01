@@ -1,6 +1,6 @@
 /**
  * @file RequestProcessor.cpp
- * @brief Implementation of RequestProcessor class
+ * @brief Request processing implementation for HTTP request handling
  */
 
 #include "RequestProcessor.hpp"
@@ -8,31 +8,24 @@
 #include "handlers/Handlers.hpp"
 #include "Router.hpp"
 #include "utils/StringUtils.hpp"
-#include <algorithm> // for std::find
+#include <algorithm>
 
 using namespace router::utils;
 
-/** Default constructor */
-RequestProcessor::RequestProcessor() {
-  // Constructor can be used for initialization if needed
-}
+RequestProcessor::RequestProcessor() = default;
 
-/** Destructor */
-RequestProcessor::~RequestProcessor() {
-  // Destructor can be used for cleanup if needed
-}
+RequestProcessor::~RequestProcessor() = default;
 
-/** Process HTTP request */
+/** Process HTTP request with routing information */
 void RequestProcessor::processRequest(const Request& req, const Handler* handler,
                                       Response& res, const Server& server) const {
-  // Extract and validate request components
   std::string_view method_view = req.getMethod();
   std::string_view path_view = req.getPath();
 
   std::string method(method_view);
   std::string path(path_view);
 
-  // Validate HTTP method - return 405 Method Not Allowed for unsupported methods
+  // Validate HTTP method
   if (method != http::GET && method != http::POST && method != http::DELETE) {
     router::utils::HttpResponseBuilder::setErrorResponse(res, http::METHOD_NOT_ALLOWED_405, req, server);
     return;
@@ -45,19 +38,19 @@ void RequestProcessor::processRequest(const Request& req, const Handler* handler
     }
   }
 
-  // Check if path exists but method is not allowed (405 Method Not Allowed)
+  // Check if path exists but method is not allowed
   if (isPathExistsButMethodNotAllowed(req, server)) {
     router::utils::HttpResponseBuilder::setErrorResponse(res, http::METHOD_NOT_ALLOWED_405, req, server);
     return;
   }
 
-  // Check if path matches any configured location before fallback
+  // Check if path matches any configured location
   if (!isPathConfigured(req, server)) {
     router::utils::HttpResponseBuilder::setErrorResponse(res, http::NOT_FOUND_404, req, server);
     return;
   }
 
-  // Fallback: try to serve as static file (only for configured paths)
+  // Try to serve as static file
   if (tryServeAsStaticFile(req, res, method, server)) {
     return;
   }
@@ -66,7 +59,7 @@ void RequestProcessor::processRequest(const Request& req, const Handler* handler
   router::utils::HttpResponseBuilder::setErrorResponse(res, http::NOT_FOUND_404, req, server);
 }
 
-/** Execute handler */
+/** Execute handler with error handling */
 bool RequestProcessor::executeHandler(const Handler* handler,
                                       const Request& req, Response& res,
                                       const Server& server) const {
@@ -86,7 +79,7 @@ bool RequestProcessor::executeHandler(const Handler* handler,
   }
 }
 
-/** Serve static file */
+/** Try to serve request as static file */
 bool RequestProcessor::tryServeAsStaticFile(const Request& req, Response& res,
                                             const std::string& method, const Server& server) const {
   // Only handle GET requests for static files
@@ -99,7 +92,6 @@ bool RequestProcessor::tryServeAsStaticFile(const Request& req, Response& res,
     get(req, res, server);
     return true;
   } catch (...) {
-    // Static file serving failed
     return false;
   }
 }

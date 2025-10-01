@@ -210,7 +210,7 @@ std::string executeCgiScript(const std::string& scriptPath, const std::vector<st
   }
 }
 
-/** Execute CGI script and parse output into structured result */
+/** Execute and parse CGI script */
 CgiResult executeAndParseCgiScript(const std::string& scriptPath, const std::vector<std::string>& env, const std::string& input) {
   CgiResult result;
 

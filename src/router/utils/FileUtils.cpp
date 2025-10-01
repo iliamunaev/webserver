@@ -13,6 +13,7 @@
 namespace router {
 namespace utils {
 
+/** Read file to string */
 std::string FileUtils::readFileToString(const std::string& filename) {
   std::ifstream file(filename, std::ios::binary);
   if (!file.is_open()) {
@@ -24,6 +25,7 @@ std::string FileUtils::readFileToString(const std::string& filename) {
   return content;
 }
 
+/** Get content type */
 std::string FileUtils::getContentType(const std::string& filePath) {
   std::string extension = std::filesystem::path(filePath).extension().string();
 

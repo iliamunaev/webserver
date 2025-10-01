@@ -1,6 +1,6 @@
 /**
  * @file Router.cpp
- * @brief HTTP Router implementation
+ * @brief HTTP Router implementation for request routing and handler management
  */
 
 #include "../../inc/webserv.hpp"
@@ -94,10 +94,8 @@ const Router::Handler* Router::findHandler(int server_id, const std::string& met
   bool is_extension_match = false;
 
   for (const auto& route_pair : server_routes) {
-    // const std::string& route_path = route_pair.first;
     const std::string& route_path(route_pair.first);
 
-    // auto method_it = route_pair.second.find(method);
     auto method_it = route_pair.second.find(method);
     if (method_it == route_pair.second.end()) {
       continue;
@@ -150,7 +148,6 @@ const Location* Router::findLocation(const Server& server, const std::string& pa
   size_t best_match_length = 0;
 
   for (const auto& location : locations) {
-    // const std::string& location_path = location.location;
     const std::string& location_path(location.location);
 
     // Exact match
@@ -184,10 +181,8 @@ void Router::handleRequest(const Server& server, const Request& req, Response& r
   std::string method(req.getMethod());
   std::string path(req.getPath());
 
-  // normalize path, strip trailing slash
+  // Normalize path and find appropriate handler
   path = router::utils::StringUtils::normalizePath(path);
-
-  // find handler, if not found, return 404
   const Handler* handler = findHandler(server.getId(), method, path);
   _requestProcessor.processRequest(req, handler, res, server);
 }
@@ -196,14 +191,12 @@ void Router::handleRequest(const Server& server, const Request& req, Response& r
 
 /** List all registered routes */
 void Router::listRoutes() const {
-
   std::cout << "=== Available routes: ===" << std::endl;
   for (const auto& server_pair : _routes) {
     int server_id = server_pair.first;
     std::cout << "Server ID: " << server_id << std::endl;
 
     for (const auto& path_pair : server_pair.second) {
-      // const std::string& path = path_pair.first;
       const std::string& path(path_pair.first);
       std::cout << "  " << path << " -> ";
       for (const auto& method_pair : path_pair.second) {

@@ -18,6 +18,7 @@
 namespace router {
 namespace utils {
 
+/** Set error response */
 void HttpResponseBuilder::setErrorResponse(Response& res, int status, const Request& req) {
   // Set the HTTP status line based on the error code
   if (status == http::NOT_FOUND_404) {
@@ -55,6 +56,7 @@ void HttpResponseBuilder::setErrorResponse(Response& res, int status, const Requ
   res.setBody(getErrorPageHtml(status));
 }
 
+/** Set error response with server */
 void HttpResponseBuilder::setErrorResponse(Response& res, int status, const Request& req, const Server& server) {
   // Set the HTTP status line based on the error code
   if (status == http::NOT_FOUND_404) {
@@ -95,6 +97,7 @@ void HttpResponseBuilder::setErrorResponse(Response& res, int status, const Requ
   res.setBody(errorPageHtml);
 }
 
+/** Set success response */
 void HttpResponseBuilder::setSuccessResponse(Response& res, const std::string& content, const std::string& contentType, const Request& req) {
   res.setStatus(http::STATUS_OK_200);
   res.setHeaders(http::CONTENT_TYPE, contentType);
@@ -111,6 +114,7 @@ void HttpResponseBuilder::setSuccessResponse(Response& res, const std::string& c
 }
 
 
+/** Set success response with default page */
 void HttpResponseBuilder::setSuccessResponseWithDefaultPage(Response& res, int status, const Request& req) {
   // Set the HTTP status line based on the success code
   if (status == http::OK_200) {
@@ -137,6 +141,7 @@ void HttpResponseBuilder::setSuccessResponseWithDefaultPage(Response& res, int s
 }
 
 
+/** Set method not allowed response */
 void HttpResponseBuilder::setMethodNotAllowedResponse(Response& res, const std::vector<std::string>& allowedMethods, const Request& req) {
   // Set the HTTP status line
   res.setStatus(http::STATUS_METHOD_NOT_ALLOWED_405);
@@ -169,6 +174,7 @@ void HttpResponseBuilder::setMethodNotAllowedResponse(Response& res, const std::
   res.setBody(errorHtml);
 }
 
+/** Make default error page */
 std::string HttpResponseBuilder::makeDefaultErrorPage(int code, const std::string& reason) {
   std::ostringstream oss;
   oss << "<html>\n<head><title>" << code << " " << reason << "</title></head>\n"
@@ -178,6 +184,7 @@ std::string HttpResponseBuilder::makeDefaultErrorPage(int code, const std::strin
   return oss.str();
 }
 
+/** Make default success page */
 std::string HttpResponseBuilder::makeDefaultSuccessPage(int code, const std::string& reason) {
   std::ostringstream oss;
   oss << "<html>\n<head><title>" << code << " " << reason << "</title></head>\n"
@@ -188,6 +195,7 @@ std::string HttpResponseBuilder::makeDefaultSuccessPage(int code, const std::str
   return oss.str();
 }
 
+/** Get error page HTML */
 std::string HttpResponseBuilder::getErrorPageHtml(int status) {
   switch (status) {
     case http::BAD_REQUEST_400:
@@ -212,6 +220,7 @@ std::string HttpResponseBuilder::getErrorPageHtml(int status) {
   }
 }
 
+/** Get success page HTML */
 std::string HttpResponseBuilder::getSuccessPageHtml(int status) {
   switch (status) {
     case http::OK_200:
@@ -224,6 +233,7 @@ std::string HttpResponseBuilder::getSuccessPageHtml(int status) {
   }
 }
 
+/** Get error page HTML with server */
 std::string HttpResponseBuilder::getErrorPageHtml(int status, const Server& server) {
   // Check if server has custom error page for this status
   const std::map<int, std::string>& errorPages = server.getErrorPages();
@@ -251,6 +261,7 @@ std::string HttpResponseBuilder::getErrorPageHtml(int status, const Server& serv
   return getErrorPageHtml(status);
 }
 
+/** Parse status code from string */
 int HttpResponseBuilder::parseStatusCodeFromString(const std::string& statusString) {
   // Extract the numeric status code from strings like "400 Bad Request"
   if (statusString.find("400") != std::string::npos) {

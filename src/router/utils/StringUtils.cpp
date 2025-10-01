@@ -11,6 +11,7 @@
 namespace router {
 namespace utils {
 
+/** Replace all occurrences */
 std::string StringUtils::replaceAll(std::string str, const std::string& from, const std::string& to) {
   size_t start_pos = 0;
   while((start_pos = str.find(from, start_pos)) != std::string::npos) {
@@ -20,6 +21,7 @@ std::string StringUtils::replaceAll(std::string str, const std::string& from, co
   return str;
 }
 
+/** Determine CGI file path */
 std::string StringUtils::determineFilePathCGI(const std::string_view& path, const Location* location, const std::string& server_root) {
   if (path == page::ROOT_HTML || path == page::INDEX_HTML_PATH) {
     return page::INDEX_HTML;
@@ -53,6 +55,7 @@ std::string StringUtils::determineFilePathCGI(const std::string_view& path, cons
   }
 }
 
+/** Replace placeholder */
 std::string StringUtils::replacePlaceholder(std::string html, const std::string& placeholder, const std::string& replacement) {
   size_t pos = 0;
   while ((pos = html.find(placeholder, pos)) != std::string::npos) {
@@ -63,6 +66,7 @@ std::string StringUtils::replacePlaceholder(std::string html, const std::string&
 }
 
 // read: https://nginx.org/en/docs/http/ngx_http_core_module.html?utm_source=chatgpt.com#merge_slashes
+/** Normalize path */
 std::string StringUtils::normalizePath(std::string path) {
   // collapse multiple slashes
   size_t i = 0, j = 0;
@@ -76,12 +80,7 @@ std::string StringUtils::normalizePath(std::string path) {
   if (path.empty()) path = "/";
   return path;
 }
-/**
- * @brief Resolve path relative to server root (nginx-style)
- * @param path Path from configuration (can be relative or absolute)
- * @param server_root Server root directory
- * @return Resolved absolute path
- */
+/** Resolve path */
 std::string StringUtils::resolvePath(const std::string& path, const std::string& server_root) {
   if (path.empty()) {
     return server_root;
