@@ -13,8 +13,6 @@ Webserver is a full-featured HTTP server implementation with advanced routing ca
 - **Autoindex Directory Listing**: Automatic HTML directory listing with navigation support
 - **HTTP Redirection**: Configurable URL redirection with proper status codes
 - **Advanced Error Handling**: Comprehensive HTTP error response system with custom error pages
-- **Memory Efficient**: Optimized memory usage with RAII and standard library containers
-- **Fast Route Resolution**: O(log n) route lookup with efficient data structures
 
 ### Core HTTP Processing
 
