@@ -181,6 +181,7 @@ curl -X DELETE http://127.0.0.1:8080/uploads/workflow_test.txt
 # 5. Verify deletion
 curl http://127.0.0.1:8080/uploads/workflow_test.txt  # Should return 404
 ```## Project Architecture
+```
 
 ### Core Components
 
