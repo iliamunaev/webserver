@@ -75,4 +75,7 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all, clean, fclean, re
+run: fclean
+	$(MAKE) -j6
+
+.PHONY: all, clean, fclean, re, run
