@@ -1,124 +1,284 @@
-# Router Documentation
+# Webserver - HTTP Router Documentation
 
-## Overview
+A high-performance HTTP/1.1 web server built in C++ with comprehensive routing capabilities, CGI support, file upload handling, and multi-server configuration management
 
-The Router module provides HTTP request routing functionality for the webserver. It maps incoming HTTP requests to appropriate handlers based on server configuration, HTTP method, and URL path patterns.
+## Features
 
-## Architecture
+Webserver is a full-featured HTTP server implementation with advanced routing capabilities:
+
+- **Multi-Server Support**: Run multiple virtual servers on different ports with independent configurations
+- **HTTP Method Routing**: Complete support for GET, POST, DELETE methods with method-specific handlers
+- **CGI Execution**: RFC 3875 compliant CGI script execution with environment setup and timeout handling
+- **File Upload System**: Multipart/form-data file upload handling with size validation and directory management
+- **Autoindex Directory Listing**: Automatic HTML directory listing with navigation support
+- **HTTP Redirection**: Configurable URL redirection with proper status codes
+- **Advanced Error Handling**: Comprehensive HTTP error response system with custom error pages
+
+### Core HTTP Processing
+
+- **Request Parsing**: Complete HTTP/1.1 request parsing with header validation
+- **Response Building**: Dynamic HTTP response generation with proper headers and status codes
+- **Route Matching**: Sophisticated path matching with exact, extension, and prefix matching strategies
+- **Method Validation**: HTTP method validation with proper 405 Method Not Allowed responses
+- **Content Type Detection**: Automatic MIME type detection and Content-Type header setting
+
+### Advanced Features
+
+- **Chunked Transfer Encoding**: Support for chunked request and response bodies
+- **Connection Management**: Keep-alive and close connection handling
+- **File Size Validation**: Configurable client_max_body_size with 413 Payload Too Large responses
+- **CGI Environment Setup**: Complete CGI environment variable configuration
+- **Nested Directory Support**: Deep directory structure navigation with autoindex
+
+## Requirements
+
+### System Requirements
+
+- **Operating System**: Linux (tested on WSL2, Ubuntu)
+- **C++ Version**: C++20 or later
+
+### Dependencies
+
+- **CMake**: Version 3.16 or later (for build system)
+- **GCC/Clang**: C++20 compatible compiler
+- **Standard Library**: C++20 standard library with filesystem support
+- **System Libraries**: Standard POSIX libraries for file and network operations
+
+## Installation Instructions
+
+### 1. Basic Server Startup
+
+Clone the repository and navigate to the project directory:
+
+```bash
+git clone <repository-url>
+cd webserver
+```
+
+### 2. Compile the Project
+
+Build the webserver using CMake:
+
+```bash
+make run
+```
+
+## Usage Examples
+
+Start the webserver with a configuration file:
+
+```bash
+./webserv configs/default.conf
+```
+
+### Multi-Server Configuration
+
+Run multiple servers simultaneously:
+
+```bash
+# Server 1 - Full functionality (port 8080)
+./webserv configs/default.conf
+
+# Server 2 - GET/DELETE only (port 8081)
+# Server 3 - GET/POST only (port 8082)
+# Server 4 - Simple site (port 8083)
+# Server 5 - Simple site (port 8084)
+```
+
+### Static File Serving
+
+Access static files and directories:
+
+```bash
+# Root directory with index.html
+curl http://127.0.0.1:8080/
+
+# Specific static files
+curl http://127.0.0.1:8080/index.html
+curl http://127.0.0.1:8080/favicon.ico
+
+# Directory listing with autoindex
+curl http://127.0.0.1:8080/uploads/
+curl http://127.0.0.1:8080/imgs/
+```
+
+### File Upload Operations
+
+Upload files using POST method:
+
+```bash
+# Create a test file
+echo "Hello, Webserver!" > test.txt
+
+# Upload the file
+curl -X POST -F "file=@test.txt" http://127.0.0.1:8080/uploads/
+
+# Verify upload
+curl http://127.0.0.1:8080/uploads/test.txt
+```
+
+### File Deletion
+
+Remove uploaded files:
+
+```bash
+# Delete an uploaded file
+curl -X DELETE http://127.0.0.1:8080/uploads/test.txt
+
+# Verify deletion (should return 404)
+curl http://127.0.0.1:8080/uploads/test.txt
+```
+
+### CGI Script Execution
+
+Execute CGI scripts with different methods:
+
+```bash
+# GET request to CGI script
+curl http://127.0.0.1:8080/cgi-bin/hello.py
+
+# POST with form data
+curl -X POST -d "name=test&value=123" http://127.0.0.1:8080/cgi-bin/hello.py
+
+# POST with JSON data
+curl -X POST -H "Content-Type: application/json" \
+     -d '{"name":"test","value":123}' \
+     http://127.0.0.1:8080/cgi-bin/hello.py
+```
+
+### HTTP Redirection
+
+Test URL redirections:
+
+```bash
+# Follow redirect (302 Found)
+curl -L http://127.0.0.1:8080/old
+
+# Check redirect without following
+curl -v http://127.0.0.1:8080/old
+```
+
+### Error Handling Examples
+
+Test various error conditions:
+
+```bash
+# 404 Not Found
+curl -v http://127.0.0.1:8080/nonexistent.html
+
+# 405 Method Not Allowed
+curl -v -X PUT http://127.0.0.1:8080/
+curl -v -X PATCH http://127.0.0.1:8080/uploads/
+
+# 413 Payload Too Large
+dd if=/dev/zero of=large.txt bs=1K count=2000
+curl -X POST -F "file=@large.txt" http://127.0.0.1:8080/uploads/
+```
+
+### Complete Workflow Test
+
+Test a complete upload → verify → delete workflow:
+
+```bash
+# 1. Upload a file
+echo "workflow test $(date)" > workflow_test.txt
+curl -X POST -F "file=@workflow_test.txt" http://127.0.0.1:8080/uploads/
+
+# 2. Verify the file exists
+curl http://127.0.0.1:8080/uploads/workflow_test.txt
+
+# 3. Check directory listing
+curl http://127.0.0.1:8080/uploads/
+
+# 4. Delete the file
+curl -X DELETE http://127.0.0.1:8080/uploads/workflow_test.txt
+
+# 5. Verify deletion
+curl http://127.0.0.1:8080/uploads/workflow_test.txt  # Should return 404
+```
+
+## Project Structure (Router Part)
+
+[The project is organized into logical modules with clear separation of concerns:]
+
+``` bash
+webserver/
+├── src/                          # Source code directory
+│   ├── router/                   # HTTP routing system
+│   │   ├── handlers/            # Request handlers (GET, POST, DELETE, CGI, redirect)
+│   │   │   ├── Handlers.cpp     # Handler implementations
+│   │   │   ├── CgiExecutor.cpp  # CGI script execution
+│   │   │   ├── MultipartParser.cpp # File upload parsing
+│   │   │   └── HandlerUtils.cpp # Handler utility functions
+│   │   ├── utils/               # Router utility classes
+│   │   │   ├── HttpResponseBuilder.cpp # HTTP response construction
+│   │   │   ├── FileUtils.cpp    # File system operations
+│   │   │   ├── StringUtils.cpp  # String manipulation utilities
+│   │   │   ├── ValidationUtils.cpp # Input validation
+│   │   │   └── Utils.cpp        # General utilities
+│   │   ├── Router.cpp           # Main router class
+│   │   ├── RequestProcessor.cpp # Request processing logic
+│   │   ├── HttpConstants.hpp    # HTTP protocol constants
+│   │   └── ROUTER_DOCS.md       # This documentation
+│   ├── request/                 # HTTP request parsing
+│   ├── response/                # HTTP response handling
+│   ├── server/                  # Server configuration and management
+│   └── main.cpp                 # Application entry point
+├── configs/                     # Server configuration files
+│   ├── default.conf            # Default server configuration
+│   ├── extended.conf           # Extended multi-server configuration
+│   └── repeating_IP_port.conf  # Port conflict testing configuration
+├── test/                       # Test suite
+│   ├── router_tests/           # Router-specific tests
+│   │   ├── TESTS.md           # Comprehensive test documentation
+│   │   └── run_all_tests.sh   # Automated test runner
+│   └── [other test directories]
+├── www/                        # Web content directory
+│   ├── uploads/               # File upload destination
+│   ├── errors/                # Custom error pages
+│   ├── imgs/                  # Static images
+│   ├── cgi-bin/               # CGI scripts
+│   └── index.html             # Default index page
+├── CMakeLists.txt             # CMake build configuration
+├── Makefile                   # Alternative build system
+└── README.md                  # Project overview
+```
+
+### Key Files and Directories
+
+- **src/router/**: Core routing system with request handlers and utilities
+- **src/router/handlers/**: HTTP method handlers (GET, POST, DELETE, CGI, redirect)
+- **src/router/utils/**: Utility classes for HTTP response building, file operations, and validation
+- **configs/**: Server configuration files with different setups for testing
+- **test/router_tests/**: Comprehensive test suite with automated testing scripts
+- **www/**: Web content directory structure with uploads, CGI scripts, and static files
+
+## Router Architecture
 
 ### Core Components
 
-- **Router**: Main routing class that manages route mappings
+- **Router**: Main routing class that manages route mappings and handler selection
 - **RequestProcessor**: Handles request execution and fallback logic
-- **Handlers**: Specific implementations for different request types (GET, POST, DELETE, CGI, redirect)
+- **Handlers**: Specific implementations for different request types:
+  - `get()`: Static file serving and directory listing
+  - `post()`: File upload handling via multipart/form-data
+  - `del()`: File deletion from upload directories
+  - `cgi()`: CGI script execution with environment setup
+  - `redirect()`: HTTP redirection handling
 
 ### Route Storage Structure
 
-```bash
-server_id → path → HTTP_method → Handler_function
+```cpp
+std::map<int, std::map<std::string, std::map<std::string, Handler>>> _routes;
+// server_id → HTTP_method → path → Handler_function
 ```
 
-## Key Features
-
-### Route Matching Strategies
-
-1. **Exact Match**: Highest priority for precise path matches
-2. **Extension Match**: Matches file extensions (e.g., `.py`, `.php`)
-3. **Prefix Match**: Matches directory prefixes (e.g., `/uploads`, `/admin`)
-
-### Handler Types
-
-#### GET Handler
-
-- **Purpose**: Serve static files and handle directory requests
-- **Process**:
-  1. Extract and validate file path from request
-  2. Resolve path relative to server root directory
-  3. Handle directory requests with autoindex support
-  4. Serve static files with proper content type
-  5. Handle index files (`index.html`) for root requests
-- **Features**:
-  - Directory listing with autoindex
-  - MIME type detection
-  - Error handling for missing files/directories
-
-#### POST Handler
-
-- **Purpose**: Handle file uploads via multipart/form-data
-- **Process**:
-  1. Find location with upload configuration
-  2. Validate multipart/form-data content type
-  3. Parse boundary and extract file data
-  4. Validate filename and file size (1MB limit)
-  5. Create upload directory if needed
-  6. Write file to upload path
-- **Features**:
-  - Chunked request body support
-  - File size validation
-  - Directory creation
-  - Duplicate filename handling
-
-#### DELETE Handler
-
-- **Purpose**: Remove files from upload directories
-- **Process**:
-  1. Find location with upload configuration
-  2. Extract filename from request path
-  3. Validate file existence
-  4. Remove file from filesystem
-  5. Return success/error response
-- **Features**:
-  - File existence validation
-  - Safe file deletion
-  - Proper error responses
-
-#### CGI Handler
-
-- **Purpose**: Execute CGI scripts and return results
-- **Process**:
-  1. **Validation Phase**: Validate location, path, and file
-  2. **Path Resolution**: Determine CGI script path
-  3. **File Validation**: Check if file exists and is executable
-  4. **CGI Execution**: Set up environment and execute script
-  5. **Response Parsing**: Parse CGI output (headers, status, body)
-  6. **Response Building**: Set HTTP response from CGI result
-- **Features**:
-  - RFC 3875 compliant CGI implementation
-  - Environment variable setup
-  - Chunked body support
-  - Timeout handling (504 Gateway Timeout)
-  - Header parsing from CGI output
-
-#### Redirect Handler
-
-- **Purpose**: Handle HTTP redirects to configured URLs
-- **Process**:
-  1. Find location with redirect configuration
-  2. Extract redirect URL from location
-  3. Set 302 Found status code
-  4. Set Location header
-  5. Provide fallback HTML for non-automatic redirects
-- **Features**:
-  - Configurable redirect URLs
-  - Proper HTTP status codes
-  - Fallback HTML content
-  - Keep-alive connection handling
-
-## Handler Selection Logic
+### Handler Selection Logic
 
 The router automatically selects the appropriate handler based on location configuration and HTTP method:
 
-### Selection Priority
-
-1. **Redirect Handler**: If `return_url` is configured in location
-2. **CGI Handler**: If both `cgi_path` and `cgi_ext` are configured
-3. **POST Handler**: If method is POST and `upload_path` is configured
-4. **DELETE Handler**: If method is DELETE and `upload_path` is configured
-5. **GET Handler**: Default fallback for all other cases
-
-### Configuration-Based Routing
-
 ```cpp
+// Selection Priority
 if (!location.return_url.empty()) {
     // Use redirect handler
 } else if (!location.cgi_path.empty() && !location.cgi_ext.empty()) {
@@ -132,63 +292,63 @@ if (!location.return_url.empty()) {
 }
 ```
 
-## Configuration Integration
+### Route Resolution Priority
 
-The router integrates with server configuration files to automatically register routes based on:
+The `findHandler()` method implements sophisticated route matching:
 
-- Server locations and their allowed methods
-- CGI configurations (`cgi_path`, `cgi_ext`)
-- Upload directories (`upload_path`)
-- Redirect URLs (`return_url`)
-- Autoindex settings for directory listing
+1. **Exact Match**: Highest priority for precise path matches
+2. **Extension Match**: Matches file extensions (e.g., `.py`, `.php`)
+3. **Prefix Match**: Matches directory prefixes (e.g., `/uploads`, `/admin`)
 
-## Usage
+## Testing
 
-### Initialization
+Comprehensive testing approach with automated test suite:
 
-```cpp
-Router router;
-router.setupRouter(server_configs);
+### Running Tests
+
+Execute the complete test suite:
+
+```bash
+# Make sure webserver is running on ports 8080-8084
+./webserv configs/extended.conf
 ```
 
-### Request Processing
-
-```cpp
-router.handleRequest(server, request, response);
+```bash
+./test/router_tests/run_all_tests.sh
 ```
 
-## Route Resolution Priority
+### Test Coverage
 
-The `findHandler()` method implements a sophisticated route matching algorithm with the following priority order:
+The test suite covers:
 
-1. **Exact path match** (highest priority)
-2. **Extension-based match** (e.g., `.py` files)
-3. **Longest prefix match** (most specific directory)
+- **Basic HTTP Operations**: GET, POST, DELETE methods
 
-### Handler Resolution Process
+- **Static File Serving**: File serving, directory listing, MIME types
+- **File Upload/Download**: Multipart uploads, file verification, deletion
+- **CGI Execution**: Script execution with different input methods
+- **HTTP Redirection**: Redirect handling and status codes
+- **Error Handling**: 404, 405, 413, 500, 504 error responses
+- **Multi-Server Support**: Multiple server configurations
+- **Nested Directory Support**: Deep directory structure navigation
 
-1. **Server Lookup**: Find the server in the routing table by server ID
-2. **Exact Match**: Try to find exact path match first
-3. **Advanced Matching**: If no exact match, find the best advanced match:
-   - **Extension Matching**: Routes starting with `.` match file extensions
-   - **Prefix Matching**: Routes match directory prefixes with validation
-4. **Method Validation**: Ensure the route supports the requested HTTP method
-5. **Best Match Selection**: Choose the most specific match (longest prefix or extension)
+### Manual Testing
 
-## Error Handling
+Individual test categories can be run manually:
 
-- Invalid requests return appropriate HTTP error responses
-- Missing routes fall back to default handlers
-- Parser errors are handled gracefully
+```bash
+# Basic GET tests
+curl -v http://127.0.0.1:8080/
 
-## Debug Features
+# POST upload tests
+curl -X POST -F "file=@test.txt" http://127.0.0.1:8080/uploads/
 
-- Route listing functionality for development
-- Comprehensive logging of route registrations
+# DELETE tests
+curl -X DELETE http://127.0.0.1:8080/uploads/test.txt
 
-## Dependencies
+# CGI tests
+curl http://127.0.0.1:8080/cgi-bin/hello.py
+```
 
-- Request/Response classes
-- Server configuration
-- HTTP constants
-- Utility functions for path normalization and response building
+**Webserver** - A high-performance HTTP/1.1 web server with advanced routing capabilities
+
+*Built with modern C++20, featuring comprehensive HTTP method support, CGI execution, file upload handling, and multi-server configuration management.*
